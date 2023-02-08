@@ -1,0 +1,12 @@
+*.class
+*.log
+.sc
+
+.bsp
+.idea
+
+target
+params.conf
+project/target
+project/project
+logs

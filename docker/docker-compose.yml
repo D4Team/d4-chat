@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+  d4chat-postgres:
+    image: postgres:14
+    container_name: d4chat-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: d4chat-postgres
+    ports:
+      - 5444:5432
+    volumes:
+      - d4chat:/var/lib/postgresql/data
+
+volumes:
+  d4chat:
+    driver: local
