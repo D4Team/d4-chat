@@ -1,9 +1,10 @@
 package ru.d4team.chat
 
-import ru.d4team.chat.config.AppConfig
-import ru.d4team.chat.db.{PgDBMigrator, PgDBTransactor}
+import ru.d4team.chat.config.{AppConfig, PostgresConfig}
+import ru.d4team.chat.db.PgDBMigrator
 import zio._
 import zio.logging.backend.SLF4J
+import zio.sql.HikariConnectionPool
 
 object Main extends ZIOAppDefault {
 
@@ -13,12 +14,13 @@ object Main extends ZIOAppDefault {
 
   private val mainApp = AppConfig.logConfig *> PgDBMigrator.migrate *> httpApp
 
-  override def run = mainApp.unit.provide(
+  override def run: IO[Any, Unit] = mainApp.unit.provide(
     // Config
     AppConfig.allConfigs,
     AppConfig.live,
     // DB
-    PgDBTransactor.live,
+    PostgresConfig.hikariConnectionPoolConfig,
+    HikariConnectionPool.live,
     // Logger
     loggerLayer
   )
