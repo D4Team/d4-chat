@@ -14,7 +14,7 @@ object Main extends ZIOAppDefault {
 
   private val mainApp = AppConfig.logConfig *> PgDBMigrator.migrate *> httpApp
 
-  override def run: IO[Any, Unit] = mainApp.unit.provide(
+  override def run: IO[Any, ExitCode] = mainApp.provide(
     // Config
     AppConfig.allConfigs,
     AppConfig.live,

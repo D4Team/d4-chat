@@ -15,7 +15,7 @@ final case class PostgresConfig(
 
 object PostgresConfig {
 
-  val hikariConnectionPoolConfig: ZLayer[PostgresConfig, Throwable, HikariConnectionPoolConfig] = ZLayer {
+  val hikariConnectionPoolConfig: RLayer[PostgresConfig, HikariConnectionPoolConfig] = ZLayer {
     for {
       pgConfig  <- ZIO.service[PostgresConfig]
       poolConfig = HikariConnectionPoolConfig(
