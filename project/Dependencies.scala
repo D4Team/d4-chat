@@ -14,7 +14,6 @@ object Dependencies {
     lazy val catsVersion          = "2.9.0"
     lazy val cats3InteropVersion  = "23.0.0.0"
     lazy val liquibaseVersion     = "4.18.0"
-    lazy val pgDriverVersion      = "42.5.1"
   }
 
   lazy val zio: ModuleID = "dev.zio" %% "zio" % zioVersion
