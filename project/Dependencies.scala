@@ -49,6 +49,4 @@ object Dependencies {
 
   lazy val liquibase: ModuleID = "org.liquibase" % "liquibase-core" % liquibaseVersion
 
-  lazy val pgDriver: ModuleID = "org.postgresql" % "postgresql" % pgDriverVersion
-
 }
