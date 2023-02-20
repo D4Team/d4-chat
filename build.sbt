@@ -50,11 +50,11 @@ lazy val root = project
   .settings(addCompilerPlugin(kindProjector))
   .settings(
     libraryDependencies += zio,
+    libraryDependencies += cats,
+    libraryDependencies += cats3Interop,
+    libraryDependencies ++= zioSql,
     libraryDependencies ++= zioConfig,
     libraryDependencies ++= logging,
-    libraryDependencies ++= doobie,
     libraryDependencies ++= monocle,
-    libraryDependencies += cats3Interop,
-    libraryDependencies += liquibase,
-    libraryDependencies += pgDriver
+    libraryDependencies += liquibase
   )
