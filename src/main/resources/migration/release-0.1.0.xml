@@ -5,5 +5,15 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <changeSet author="Patokov_N" id="create_basic_tables">
+        <sqlFile dbms="postgresql" path="sql/001_Basic_tables.sql" relativeToChangelogFile="true" />
+        <rollback>
+            DROP TABLE messaging.chat_room_members;
+            DROP TABLE messaging.chat_room_messaging;
+            DROP TABLE messaging.chat_room_info;
+            DROP TABLE messaging.dialog;
+            DROP TABLE messaging.person;
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>
