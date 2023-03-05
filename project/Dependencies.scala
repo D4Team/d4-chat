@@ -5,10 +5,11 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    lazy val zioVersion           = "2.0.8"
+    lazy val zioVersion           = "2.0.9"
     lazy val zioSqlVersion        = "0.1.1"
     lazy val zioLoggingVersion    = "2.1.7"
     lazy val zioConfigVersion     = "3.0.7"
+    lazy val zioMockVersion       = "1.0.0-RC9"
     lazy val monocleVersion       = "3.2.0"
     lazy val logbackVersion       = "1.4.5"
     lazy val kindProjectorVersion = "0.13.2"
@@ -31,6 +32,8 @@ object Dependencies {
     "ch.qos.logback" % "logback-classic"   % logbackVersion
   )
 
+  lazy val zioMock = "dev.zio" %% "zio-mock" % zioMockVersion
+
   lazy val zioConfig: Seq[ModuleID] = Seq(
     "dev.zio" %% "zio-config",
     "dev.zio" %% "zio-config-magnolia",
@@ -52,4 +55,11 @@ object Dependencies {
     "org.flywaydb" % "flyway-core",
     "org.flywaydb" % "flyway-maven-plugin"
   ).map(_ % flywayVersion)
+
+  lazy val zioTest: Seq[ModuleID] = Seq(
+    "dev.zio" %% "zio-test",
+    "dev.zio" %% "zio-test-sbt",
+    "dev.zio" %% "zio-test-magnolia"
+  ).map(_ % zioVersion % Test)
+
 }
