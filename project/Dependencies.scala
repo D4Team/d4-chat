@@ -15,7 +15,6 @@ object Dependencies {
     lazy val catsVersion          = "2.9.0"
     lazy val cats3InteropVersion  = "23.0.0.0"
     lazy val liquibaseVersion     = "4.18.0"
-    lazy val log4jVersion                = "2.19.0"
     lazy val flywayVersion        = "9.4.0"
   }
 
