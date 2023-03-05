@@ -56,5 +56,5 @@ lazy val root = project
     libraryDependencies ++= zioConfig,
     libraryDependencies ++= logging,
     libraryDependencies ++= monocle,
-    libraryDependencies += liquibase
+    libraryDependencies ++= flyway,
   )
