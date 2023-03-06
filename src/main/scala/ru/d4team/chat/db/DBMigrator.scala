@@ -2,39 +2,33 @@ package ru.d4team.chat.db
 
 import org.flywaydb.core.api.MigrationState
 import org.flywaydb.core.api.configuration.FluentConfiguration
-import ru.d4team.chat.config.PostgresConfig
 import zio._
 
 
 object DBMigrator {
 
-  def migrate: ZIO[PostgresConfig, Throwable, Unit] =
+  def migrate: ZIO[FluentConfiguration, Throwable, Unit] =
     for {
-      config <- ZIO.service[PostgresConfig]
-      _ <- ZIO.logInfo(s"Starting the migration for host: ${config.url}")
-      count <- migrationEffect(config)
-      _ <- ZIO.logInfo(s"Successful migrations: $count")
+      flywayConfig <- ZIO.service[FluentConfiguration]
+      _            <- ZIO.logInfo(s"Starting the migration for host: ${flywayConfig.getUrl}")
+      _            <- logValidationErrorsIfAny(flywayConfig)
+      _            <- ZIO.logInfo("Migrations validation successful")
+      count        <- succeedMigrationCount(flywayConfig)
+      _            <- checkStatesForSuccess(flywayConfig)
+      _            <- ZIO.logInfo(s"Successful migrations: $count")
     } yield ()
 
+  private def succeedMigrationCount(config: FluentConfiguration): IO[Throwable, Int] = {
+    ZIO.succeed(config.load().migrate().migrationsExecuted)
+  }
 
-  private def migrationEffect(config: PostgresConfig): ZIO[Any, Throwable, Int] =
-    for {
-
-      flywayConfig <- ZIO.succeed(PostgresConfig.flywayConfig(config))
-      _ <- logValidationErrorsIfAny(flywayConfig)
-      _ <- ZIO.logInfo("Migrations validation successful")
-      count <- ZIO.succeed(flywayConfig.load().migrate().migrationsExecuted)
-
-      // fail for any statuses except success (in case of missing migration files, etc)
-      _ <- ZIO.foreach(flywayConfig.load().info().all().toList) { i =>
-        i.getState match {
-          case MigrationState.SUCCESS => ZIO.unit
-          case e => ZIO.fail(new Error(s"Migration ${i.getDescription} status is not \"SUCCESS\": ${e.toString}"))
-        }
-      }
-
-    } yield count
-
+  private def checkStatesForSuccess(config: FluentConfiguration): IO[Error, List[Unit]] = {
+    val infoWithStates = config.load().info().all().toList.map(info => (info, info.getState))
+    ZIO.foreach(infoWithStates) {
+      case (_, MigrationState.SUCCESS) => ZIO.unit
+      case (info, e) => ZIO.fail(new Error(s"Migration ${info.getDescription} status is not \"SUCCESS\": ${e.toString}"))
+    }
+  }
   private def logValidationErrorsIfAny(flywayConfig: FluentConfiguration): ZIO[Any, Throwable, Unit] =
     for {
       validated <- ZIO.succeed(

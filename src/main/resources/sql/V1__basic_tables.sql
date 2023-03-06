@@ -36,12 +36,10 @@ CREATE TABLE IF NOT EXISTS messaging.chat_room_messaging
     CONSTRAINT chat_room_messaging_pk PRIMARY KEY (message_id),
     CONSTRAINT writer_id_fk FOREIGN KEY (writer_id)
         REFERENCES messaging.person (person_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON UPDATE CASCADE,
     CONSTRAINT chat_id_fk FOREIGN KEY (chat_id)
         REFERENCES messaging.chat_room (chat_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
 );
 
 COMMENT ON TABLE messaging.chat_room_messaging IS 'Summary table fro all chat rooms';
@@ -56,12 +54,10 @@ CREATE TABLE IF NOT EXISTS messaging.chat_room_members
     CONSTRAINT chat_room_members_pk PRIMARY KEY (id),
     CONSTRAINT chat_id_fk FOREIGN KEY (chat_id)
         REFERENCES messaging.chat_room (chat_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON UPDATE CASCADE,
     CONSTRAINT member_id_fk FOREIGN KEY (member_id)
         REFERENCES messaging.person (person_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
 );
 
 --GRANT ALL ON ALL TABLES IN SCHEMA messaging TO test;

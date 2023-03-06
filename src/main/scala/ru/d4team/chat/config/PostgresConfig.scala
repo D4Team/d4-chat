@@ -2,6 +2,8 @@ package ru.d4team.chat.config
 
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
+import zio.sql.HikariConnectionPoolConfig
+import zio.{ RLayer, ZIO, ZLayer }
 
 final case class PostgresConfig(
   host: String,
@@ -16,7 +18,9 @@ final case class PostgresConfig(
 }
 
 object PostgresConfig {
-  def flywayConfig(conf: PostgresConfig): FluentConfiguration =
+
+  val flywayConfig: RLayer[PostgresConfig, FluentConfiguration] = ZLayer.fromFunction(buildFlywayConfig _)
+  private def buildFlywayConfig(conf: PostgresConfig): FluentConfiguration =
     Flyway.configure
       .loggers("slf4j")
       .dataSource(
@@ -29,5 +33,16 @@ object PostgresConfig {
       .locations(conf.migrationsLocation)
       .failOnMissingLocations(true)
       .baselineOnMigrate(true)
+
+  val hikariConnectionPoolConfig: RLayer[PostgresConfig, HikariConnectionPoolConfig] = ZLayer {
+    for {
+      pgConfig <- ZIO.service[PostgresConfig]
+      poolConfig = HikariConnectionPoolConfig(
+        url = pgConfig.url,
+        userName = pgConfig.user,
+        password = pgConfig.password
+      )
+    } yield poolConfig
+  }
 
 }
