@@ -59,6 +59,3 @@ CREATE TABLE IF NOT EXISTS messaging.chat_room_members
         REFERENCES messaging.person (person_id)
         ON UPDATE CASCADE
 );
-
---GRANT ALL ON ALL TABLES IN SCHEMA messaging TO test;
---GRANT USAGE ON SCHEMA messaging TO test;

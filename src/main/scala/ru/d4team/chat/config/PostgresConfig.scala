@@ -3,7 +3,7 @@ package ru.d4team.chat.config
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import zio.sql.HikariConnectionPoolConfig
-import zio.{ RLayer, ZIO, ZLayer }
+import zio.{ RLayer, ZLayer }
 
 final case class PostgresConfig(
   host: String,
@@ -19,30 +19,26 @@ final case class PostgresConfig(
 
 object PostgresConfig {
 
-  val flywayConfig: RLayer[PostgresConfig, FluentConfiguration] = ZLayer.fromFunction(buildFlywayConfig _)
-  private def buildFlywayConfig(conf: PostgresConfig): FluentConfiguration =
-    Flyway.configure
-      .loggers("slf4j")
-      .dataSource(
-        conf.url,
-        conf.user,
-        conf.password
-      )
-      .group(true)
-      .outOfOrder(false)
-      .locations(conf.migrationsLocation)
-      .failOnMissingLocations(true)
-      .baselineOnMigrate(true)
+  val flywayConfig: RLayer[PostgresConfig, FluentConfiguration] =
+    ZLayer.fromFunction { conf: PostgresConfig =>
+      Flyway.configure
+        .sqlMigrationSeparator("_")
+        .loggers("slf4j")
+        .dataSource(conf.url, conf.user, conf.password)
+        .group(true)
+        .outOfOrder(false)
+        .locations(conf.migrationsLocation)
+        .failOnMissingLocations(true)
+        .baselineOnMigrate(true)
+    }
 
-  val hikariConnectionPoolConfig: RLayer[PostgresConfig, HikariConnectionPoolConfig] = ZLayer {
-    for {
-      pgConfig <- ZIO.service[PostgresConfig]
-      poolConfig = HikariConnectionPoolConfig(
-        url = pgConfig.url,
-        userName = pgConfig.user,
-        password = pgConfig.password
+  val hikariConnectionPoolConfig: RLayer[PostgresConfig, HikariConnectionPoolConfig] =
+    ZLayer.fromFunction { conf: PostgresConfig =>
+      HikariConnectionPoolConfig(
+        url = conf.url,
+        userName = conf.user,
+        password = conf.password
       )
-    } yield poolConfig
-  }
+    }
 
 }
