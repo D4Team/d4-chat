@@ -15,19 +15,18 @@ name       := "D4 Chat"
 version    := "0.1.0-SNAPSHOT"
 
 scalacOptions ++= Seq(
-  "-deprecation",               // Emit warning and location for usages of deprecated APIs.
-  "-explaintypes",              // Explain type errors in more detail.
-  "-feature",                   // Emit warning and location for usages of features that should be imported explicitly.
-  "-unchecked",                 // Enable additional warnings where generated code depends on assumptions.
-  "-Wdead-code",                // Warn when dead code is identified.
-  "-Wextra-implicit",           // Warn when more than one implicit parameter section is defined.
-  "-Wunused",                   // Warn if something from check list is unused.
-  "-Wvalue-discard",            // Warn when non-Unit expression results are unused.
-  "-Ywarn-macros:after",        // Needed for correct implicit resolution.
-  "-Wconf:cat=unused-nowarn:s", // Silence nowarn usage warnings.
-  "-Xfatal-warnings",            // Fail the compilation if there are any warnings.
-  "-Ymacro-annotations",         // Bring textual abstraction to the level of definitions.
-  "-Wconf:src=*<macro>*&cat=unused:s" // zio-mock works with it
+  "-deprecation",                     // Emit warning and location for usages of deprecated APIs.
+  "-explaintypes",                    // Explain type errors in more detail.
+  "-feature",                         // Emit warning and location for usages of features that should be imported explicitly.
+  "-unchecked",                       // Enable additional warnings where generated code depends on assumptions.
+  "-Wdead-code",                      // Warn when dead code is identified.
+  "-Wextra-implicit",                 // Warn when more than one implicit parameter section is defined.
+  "-Wunused",                         // Warn if something from check list is unused.
+  "-Wvalue-discard",                  // Warn when non-Unit expression results are unused.
+  "-Ywarn-macros:after",              // Needed for correct implicit resolution.
+  "-Wconf:cat=unused-nowarn:s",       // Silence nowarn usage warnings.
+  "-Xfatal-warnings",                 // Fail the compilation if there are any warnings.
+  "-Ymacro-annotations"              // Bring textual abstraction to the level of definitions.
 )
 
 lazy val buildInfoSettings = buildInfoKeys ++= Seq[BuildInfoKey](
@@ -45,20 +44,23 @@ lazy val root = project
   .enablePlugins(JavaAppPackaging)
   .settings(buildInfoSettings)
   .settings(
-    scalafmtOnCompile := true,
+    scalafmtOnCompile      := true,
     scalafmtLogOnEachError := true,
-    scalafixOnCompile := true
+    scalafixOnCompile      := true
   )
   .settings(addCompilerPlugin(kindProjector))
   .settings(
     libraryDependencies += zio,
     libraryDependencies ++= zioSql,
     libraryDependencies ++= zioConfig,
-    libraryDependencies += zioMock,
-    libraryDependencies ++= zioTest,
     libraryDependencies += cats,
     libraryDependencies += cats3Interop,
     libraryDependencies ++= logging,
     libraryDependencies ++= monocle,
     libraryDependencies += liquibase
+  )
+  .settings(
+    libraryDependencies += zioMock,
+    libraryDependencies ++= zioTest,
+    scalacOptions += "-Wconf:src=*<macro>*&cat=unused:s" // Silence warns of unused things for macro in zio mock
   )

@@ -7,7 +7,7 @@ object MainDummyService {
 
   type Env = ChildDummyServiceA with ChildDummyServiceB
 
-  val live: URLayer[Env, MainDummyServiceImpl] = ZLayer.fromFunction(MainDummyServiceImpl.apply _)
+  val live: URLayer[Env, MainDummyService] = ZLayer.fromFunction(MainDummyServiceImpl.apply _)
 }
 
 trait MainDummyService {
