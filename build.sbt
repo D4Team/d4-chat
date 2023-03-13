@@ -43,9 +43,9 @@ lazy val root = project
   .enablePlugins(JavaAppPackaging)
   .settings(buildInfoSettings)
   .settings(
-    scalafmtOnCompile := true,
+    scalafmtOnCompile      := true,
     scalafmtLogOnEachError := true,
-    scalafixOnCompile := true
+    scalafixOnCompile      := true
   )
   .settings(addCompilerPlugin(kindProjector))
   .settings(
@@ -56,5 +56,5 @@ lazy val root = project
     libraryDependencies ++= zioConfig,
     libraryDependencies ++= logging,
     libraryDependencies ++= monocle,
-    libraryDependencies ++= flyway,
+    libraryDependencies ++= flyway
   )

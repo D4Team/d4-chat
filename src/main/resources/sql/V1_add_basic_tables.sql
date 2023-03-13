@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS messaging.chat_room_messaging
         ON UPDATE CASCADE
 );
 
-COMMENT ON TABLE messaging.chat_room_messaging IS 'Summary table fro all chat rooms';
+COMMENT ON TABLE messaging.chat_room_messaging IS 'Summary table for all chat rooms';
 COMMENT ON COLUMN messaging.chat_room_messaging.writer_id IS 'ID of the person who wrote the message';
 
 -- Members of chat_room
@@ -59,3 +59,6 @@ CREATE TABLE IF NOT EXISTS messaging.chat_room_members
         REFERENCES messaging.person (person_id)
         ON UPDATE CASCADE
 );
+
+COMMENT ON TABLE messaging.chat_room_members IS 'Table-relation between chat and it\'s participants';
+COMMENT ON COLUMN messaging.chat_room_members.member_id IS 'ID of the person who participates in the chat';
