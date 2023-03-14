@@ -25,7 +25,8 @@ scalacOptions ++= Seq(
   "-Wvalue-discard",            // Warn when non-Unit expression results are unused.
   "-Ywarn-macros:after",        // Needed for correct implicit resolution.
   "-Wconf:cat=unused-nowarn:s", // Silence nowarn usage warnings.
-  "-Xfatal-warnings"            // Fail the compilation if there are any warnings.
+  "-Xfatal-warnings",           // Fail the compilation if there are any warnings.
+  "-Ymacro-annotations"         // Bring textual abstraction to the level of definitions.
 )
 
 lazy val buildInfoSettings = buildInfoKeys ++= Seq[BuildInfoKey](
@@ -50,11 +51,16 @@ lazy val root = project
   .settings(addCompilerPlugin(kindProjector))
   .settings(
     libraryDependencies += zio,
-    libraryDependencies += cats,
-    libraryDependencies += cats3Interop,
     libraryDependencies ++= zioSql,
     libraryDependencies ++= zioConfig,
+    libraryDependencies += cats,
+    libraryDependencies += cats3Interop,
     libraryDependencies ++= logging,
     libraryDependencies ++= monocle,
     libraryDependencies ++= flyway
+  )
+  .settings(
+    libraryDependencies += zioMock,
+    libraryDependencies ++= zioTest,
+    scalacOptions += "-Wconf:src=*<macro>*&cat=unused:s" // Silence warns of unused things for macro in zio mock
   )

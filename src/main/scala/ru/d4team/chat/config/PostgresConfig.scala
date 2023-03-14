@@ -3,16 +3,16 @@ package ru.d4team.chat.config
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import zio.sql.HikariConnectionPoolConfig
-import zio.{ RLayer, ZLayer }
+import zio.{RLayer, ZLayer}
 
 final case class PostgresConfig(
-  host: String,
-  port: Int,
-  db: String,
-  user: String,
-  password: String,
-  migrationsLocation: String,
-  schema: String
+    host: String,
+    port: Int,
+    db: String,
+    user: String,
+    password: String,
+    migrationsLocation: String,
+    schema: String
 ) {
   val url = s"jdbc:postgresql://$host:$port/$db"
 }

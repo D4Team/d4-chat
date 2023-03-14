@@ -1,6 +1,6 @@
 package ru.d4team.chat
 
-import ru.d4team.chat.config.{ AppConfig, PostgresConfig }
+import ru.d4team.chat.config.{AppConfig, PostgresConfig}
 import ru.d4team.chat.db.DBMigrator
 import zio._
 import zio.logging.backend.SLF4J
