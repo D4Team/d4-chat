@@ -1,4 +1,5 @@
 import Dependencies.Versions._
+import sbt.Keys.baseDirectory
 import sbt._
 
 object Dependencies {
@@ -14,6 +15,7 @@ object Dependencies {
     lazy val catsVersion          = "2.9.0"
     lazy val cats3InteropVersion  = "23.0.0.0"
     lazy val liquibaseVersion     = "4.18.0"
+    lazy val flywayVersion        = "9.4.0"
   }
 
   lazy val zio: ModuleID = "dev.zio" %% "zio" % zioVersion
@@ -46,6 +48,8 @@ object Dependencies {
 
   lazy val cats = "org.typelevel" %% "cats-core" % catsVersion
 
-  lazy val liquibase: ModuleID = "org.liquibase" % "liquibase-core" % liquibaseVersion
-
+  lazy val flyway = Seq(
+    "org.flywaydb" % "flyway-core",
+    "org.flywaydb" % "flyway-maven-plugin"
+  ).map(_ % flywayVersion)
 }
