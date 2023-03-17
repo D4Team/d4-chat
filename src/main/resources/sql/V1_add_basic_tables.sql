@@ -60,5 +60,5 @@ CREATE TABLE IF NOT EXISTS messaging.chat_room_members
         ON UPDATE CASCADE
 );
 
-COMMENT ON TABLE messaging.chat_room_members IS 'Table-relation between chat and it\'s participants';
+COMMENT ON TABLE messaging.chat_room_members IS E'Table-relation between chat and it\'s participants';
 COMMENT ON COLUMN messaging.chat_room_members.member_id IS 'ID of the person who participates in the chat';
