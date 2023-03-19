@@ -57,7 +57,8 @@ lazy val root = project
     libraryDependencies += cats3Interop,
     libraryDependencies ++= logging,
     libraryDependencies ++= monocle,
-    libraryDependencies ++= flyway
+    libraryDependencies ++= flyway,
+    libraryDependencies += chimney,
   )
   .settings(
     libraryDependencies += zioMock,
