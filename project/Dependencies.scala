@@ -1,11 +1,10 @@
 import Dependencies.Versions._
-import sbt.Keys.baseDirectory
 import sbt._
 
 object Dependencies {
 
   object Versions {
-    lazy val zioVersion           = "2.0.9"
+    lazy val zioVersion           = "2.0.10"
     lazy val zioSqlVersion        = "0.1.1"
     lazy val zioLoggingVersion    = "2.1.7"
     lazy val zioConfigVersion     = "3.0.7"
@@ -17,6 +16,7 @@ object Dependencies {
     lazy val cats3InteropVersion  = "23.0.0.0"
     lazy val liquibaseVersion     = "4.18.0"
     lazy val flywayVersion        = "9.4.0"
+    lazy val chimneyVersion       = "0.7.1"
   }
 
   lazy val zio: ModuleID = "dev.zio" %% "zio" % zioVersion
@@ -61,5 +61,7 @@ object Dependencies {
     "dev.zio" %% "zio-test-sbt",
     "dev.zio" %% "zio-test-magnolia"
   ).map(_ % zioVersion % Test)
+
+  lazy val chimney: ModuleID = "io.scalaland" %% "chimney" % chimneyVersion
 
 }
