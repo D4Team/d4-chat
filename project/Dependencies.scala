@@ -5,7 +5,6 @@ object Dependencies {
 
   object Versions {
     lazy val zioVersion           = "2.0.10"
-    lazy val zioSqlVersion        = "0.1.1"
     lazy val zioLoggingVersion    = "2.1.7"
     lazy val zioConfigVersion     = "3.0.7"
     lazy val zioMockVersion       = "1.0.0-RC9"
@@ -17,15 +16,11 @@ object Dependencies {
     lazy val liquibaseVersion     = "4.18.0"
     lazy val flywayVersion        = "9.4.0"
     lazy val chimneyVersion       = "0.7.1"
+    lazy val quillVersion         = "4.6.0"
+    lazy val postgresqlVersion    = "42.6.0"
   }
 
   lazy val zio: ModuleID = "dev.zio" %% "zio" % zioVersion
-
-  lazy val zioSql: Seq[ModuleID] = Seq(
-    "dev.zio" %% "zio-sql-driver",
-    "dev.zio" %% "zio-sql-postgres",
-    "dev.zio" %% "zio-sql-jdbc-hickaricp"
-  ).map(_ % zioSqlVersion)
 
   lazy val logging: Seq[ModuleID] = Seq(
     "dev.zio"       %% "zio-logging-slf4j" % zioLoggingVersion,
@@ -63,5 +58,10 @@ object Dependencies {
   ).map(_ % zioVersion % Test)
 
   lazy val chimney: ModuleID = "io.scalaland" %% "chimney" % chimneyVersion
+
+  lazy val zioQuill: Seq[ModuleID] = Seq(
+    "io.getquill"   %% "quill-jdbc-zio" % quillVersion,
+    "org.postgresql" % "postgresql"     % postgresqlVersion
+  )
 
 }

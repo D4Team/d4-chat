@@ -22,6 +22,7 @@ scalacOptions ++= Seq(
   "-Wdead-code",                // Warn when dead code is identified.
   "-Wextra-implicit",           // Warn when more than one implicit parameter section is defined.
   "-Wunused",                   // Warn if something from check list is unused.
+  "-Wconf:msg=(Quoted|idiomContext@_)&cat=unused:s", // add exceptions for quill
   "-Wvalue-discard",            // Warn when non-Unit expression results are unused.
   "-Ywarn-macros:after",        // Needed for correct implicit resolution.
   "-Wconf:cat=unused-nowarn:s", // Silence nowarn usage warnings.
@@ -51,7 +52,6 @@ lazy val root = project
   .settings(addCompilerPlugin(kindProjector))
   .settings(
     libraryDependencies += zio,
-    libraryDependencies ++= zioSql,
     libraryDependencies ++= zioConfig,
     libraryDependencies += cats,
     libraryDependencies += cats3Interop,
@@ -59,6 +59,7 @@ lazy val root = project
     libraryDependencies ++= monocle,
     libraryDependencies ++= flyway,
     libraryDependencies += chimney,
+    libraryDependencies ++= zioQuill,
   )
   .settings(
     libraryDependencies += zioMock,
