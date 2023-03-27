@@ -51,6 +51,7 @@ lazy val root = project
   .settings(addCompilerPlugin(kindProjector))
   .settings(
     libraryDependencies += zio,
+    libraryDependencies += zioHttp,
     libraryDependencies ++= zioSql,
     libraryDependencies ++= zioConfig,
     libraryDependencies += cats,
@@ -58,7 +59,7 @@ lazy val root = project
     libraryDependencies ++= logging,
     libraryDependencies ++= monocle,
     libraryDependencies ++= flyway,
-    libraryDependencies += chimney,
+    libraryDependencies += chimney
   )
   .settings(
     libraryDependencies += zioMock,
