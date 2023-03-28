@@ -5,7 +5,7 @@ import io.scalaland.chimney.dsl.TransformerOps
 import java.time.Instant
 import java.util.UUID
 
-final case class MessageRecord(
+case class MessageResponse(
     messageId: UUID,
     chatId: UUID,
     writerId: UUID,
@@ -13,6 +13,6 @@ final case class MessageRecord(
     createdAt: Instant
 )
 
-object MessageRecord {
-  def fromMessage(m: Message): MessageRecord = m.transformInto[MessageRecord]
+object MessageResponse {
+  def fromMessage(m: Message): MessageResponse = m.transformInto[MessageResponse]
 }

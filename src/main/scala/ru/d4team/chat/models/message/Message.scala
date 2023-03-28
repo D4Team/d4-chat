@@ -6,11 +6,11 @@ import java.time.Instant
 import java.util.UUID
 
 final case class Message(
-    id: UUID,
-    chatRoomId: UUID,
+    messageId: UUID,
+    chatId: UUID,
     writerId: UUID,
-    createdAt: Instant,
-    content: String
+    message: String,
+    createdAt: Instant
 )
 
 object Message {
