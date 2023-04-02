@@ -15,3 +15,7 @@ final case class Person(
 object Person {
   def fromRecord(r: PersonRecord): Person = r.transformInto[Person]
 }
+
+object Persons {
+  def fromRecords(records: List[PersonRecord]): List[Person] = records.map(Person.fromRecord)
+}

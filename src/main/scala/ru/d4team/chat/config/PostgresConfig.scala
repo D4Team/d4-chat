@@ -1,8 +1,9 @@
 package ru.d4team.chat.config
 
+import io.getquill.SnakeCase
+import io.getquill.jdbczio.Quill
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
-import zio.sql.HikariConnectionPoolConfig
 import zio.{RLayer, ZLayer}
 
 final case class PostgresConfig(
@@ -32,13 +33,7 @@ object PostgresConfig {
         .baselineOnMigrate(true)
     }
 
-  val hikariConnectionPoolConfig: RLayer[PostgresConfig, HikariConnectionPoolConfig] =
-    ZLayer.fromFunction { conf: PostgresConfig =>
-      HikariConnectionPoolConfig(
-        url = conf.url,
-        userName = conf.user,
-        password = conf.password
-      )
-    }
+  val quillLayer = Quill.Postgres.fromNamingStrategy(SnakeCase)
+  val dsLayer    = Quill.DataSource.fromPrefix("data_source")
 
 }

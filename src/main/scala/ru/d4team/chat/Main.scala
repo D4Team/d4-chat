@@ -19,9 +19,9 @@ object Main extends ZIOAppDefault {
     AppConfig.live,
     // DB
     PostgresConfig.flywayConfig,
-
-//    PostgresConfig.hikariConnectionPoolConfig,
-//    HikariConnectionPool.live,
+//    PostgresConfig.quillLayer,
+//    PostgresConfig.dsLayer,
+//    PersonDAO.live,
     // Logger
     loggerLayer
   )
