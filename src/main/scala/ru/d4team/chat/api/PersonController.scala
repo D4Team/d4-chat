@@ -13,6 +13,10 @@ trait PersonController {
   def route: App[Any]
 }
 
+object PersonController {
+  val live: URLayer[PersonService, PersonController] = ZLayer.fromFunction(PersonControllerImpl.apply _)
+}
+
 final case class PersonControllerImpl(personService: PersonService) extends PersonController {
   private def getAll: Task[Response] =
     personService.getAll.map(_.map(PersonResponse.fromPerson)).map(seq => Response.json(seq.toJson))
@@ -36,9 +40,6 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
           .flatMap(ZIO.fromEither(_))
           .flatMap(addPerson)
     }
+    .tapErrorCauseZIO(ZIO.logCause(_))
     .mapError(err => Response.json(err.getMessage))
-}
-
-object PersonController {
-  val live: URLayer[PersonService, PersonController] = ZLayer.fromFunction(PersonControllerImpl.apply _)
 }
