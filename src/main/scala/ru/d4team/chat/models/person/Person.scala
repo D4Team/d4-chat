@@ -1,7 +1,7 @@
 package ru.d4team.chat.models.person
 
 import io.scalaland.chimney.dsl.TransformerOps
-import zio.json.{DeriveJsonDecoder, DeriveJsonEncoder, JsonDecoder, JsonEncoder}
+import zio.json.{DeriveJsonDecoder, JsonDecoder}
 
 import java.time.Instant
 import java.util.UUID

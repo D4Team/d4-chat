@@ -4,7 +4,9 @@ import io.getquill.SnakeCase
 import io.getquill.jdbczio.Quill
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
-import zio.{RLayer, ZLayer}
+import zio._
+
+import javax.sql.DataSource
 
 final case class PostgresConfig(
     host: String,
@@ -33,7 +35,7 @@ object PostgresConfig {
         .baselineOnMigrate(true)
     }
 
-  val quillLayer = Quill.Postgres.fromNamingStrategy(SnakeCase)
-  val dsLayer    = Quill.DataSource.fromPrefix("data_source")
+  val quillLayer: URLayer[DataSource, Quill.Postgres[SnakeCase]] = Quill.Postgres.fromNamingStrategy(SnakeCase)
+  val dsLayer: TaskLayer[DataSource]    = Quill.DataSource.fromPrefix("data_source")
 
 }
