@@ -1,12 +1,12 @@
 package ru.d4team.chat.models.person
 
 import io.scalaland.chimney.dsl.TransformerOps
-import zio.json.{DeriveJsonEncoder, JsonEncoder}
+import zio.json._
 
 import java.time.Instant
 import java.util.UUID
 
-case class PersonResponse(
+@jsonMemberNames(SnakeCase) case class PersonResponse(
     personId: UUID,
     name: String,
     birthDate: Instant,
