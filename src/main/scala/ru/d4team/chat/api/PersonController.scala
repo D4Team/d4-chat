@@ -27,19 +27,20 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
       case None         => Response.status(Status.NotFound)
     }
 
-  private def addPerson(person: Person): Task[Response] =
-    personService.addPerson(person).map(PersonResponse.fromPerson).map(person => Response.json(person.toJson))
+  private def addPerson(req: Request): Task[Response] = for {
+    rawBody       <- req.body.asString
+    // TODO better to implement PersonRequest which will not include `id` field
+    person        <- ZIO.fromEither(rawBody.fromJson[Person].left.map(err => new Throwable(err)))
+    addedPerson   <- personService.addPerson(person)
+    personResponse = PersonResponse.fromPerson(addedPerson)
+  } yield Response.json(personResponse.toJson)
 
   override def route: App[Any] = Http
     .collectZIO[Request] {
       case Method.GET -> !! / "persons"            => getAll
       case Method.GET -> !! / "persons" / uuid(id) => findPerson(id)
-      case req @ Method.POST -> !! / "persons"     =>
-        req.body.asString
-          .map(_.fromJson[Person].left.map(fa => new Throwable(fa)))
-          .flatMap(ZIO.fromEither(_))
-          .flatMap(addPerson)
+      case req @ Method.POST -> !! / "persons"     => addPerson(req)
     }
     .tapErrorCauseZIO(ZIO.logCause(_))
-    .mapError(err => Response.json(err.getMessage))
+    .mapError(err => Response.json(err.getMessage)) // TODO handle errors properly
 }
