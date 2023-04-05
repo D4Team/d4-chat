@@ -36,6 +36,6 @@ object PostgresConfig {
     }
 
   val quillLayer: URLayer[DataSource, Quill.Postgres[SnakeCase]] = Quill.Postgres.fromNamingStrategy(SnakeCase)
-  val dsLayer: TaskLayer[DataSource]    = Quill.DataSource.fromPrefix("data_source")
+  val dsLayer: TaskLayer[DataSource]                             = Quill.DataSource.fromPrefix("data_source")
 
 }

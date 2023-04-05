@@ -16,11 +16,15 @@ object Main extends ZIOAppDefault {
 
   private val httpApp = for {
     config   <- ZIO.service[ServerConfig]
-    zioConf   = ZioServerConfig.default.binding(config.host, config.port)
     api      <- ZIO.service[PersonController]
+    _        <- Server.install(api.route)
     _        <- ZIO.logInfo(s"Started server on http://${config.host}:${config.port}")
-    exitCode <- Server.serve(api.route).provide(ZioServerConfig.live(zioConf), Server.live).exitCode
+    exitCode <- ZIO.never.exitCode
   } yield exitCode
+
+  private val zioConfig = ZLayer.fromFunction { config: ServerConfig =>
+    ZioServerConfig.default.binding(config.host, config.port)
+  }
 
   private val mainApp = AppConfig.logConfig *> DBMigrator.migrate *> httpApp
 
@@ -30,12 +34,15 @@ object Main extends ZIOAppDefault {
     AppConfig.live,
     // DB
     PostgresConfig.flywayConfig,
+    PostgresConfig.quillLayer,
+    PostgresConfig.dsLayer,
+    // Server
+    zioConfig,
+    Server.live,
     // Persons
     PersonDAO.live,
     PersonService.live,
     PersonController.live,
-    PostgresConfig.quillLayer,
-    PostgresConfig.dsLayer,
     // Logger
     loggerLayer
   )
