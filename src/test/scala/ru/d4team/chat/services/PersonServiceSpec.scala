@@ -9,8 +9,6 @@ import zio.test.Assertion._
 import zio.test.TestAspect.{nondeterministic, parallel}
 import zio.test._
 
-import java.util.UUID
-
 object PersonServiceSpec extends ZIOSpecDefault {
   @mockable[PersonDAO]
   object MockPersonDAO
@@ -24,7 +22,7 @@ object PersonServiceSpec extends ZIOSpecDefault {
         // Then
         val resultEffect = for {
           service <- ZIO.service[PersonService]
-          result <- service.addPerson(person)
+          result  <- service.addPerson(person)
         } yield assertTrue(result == person)
 
         resultEffect.provide(PersonService.live, dependencies)
@@ -33,7 +31,7 @@ object PersonServiceSpec extends ZIOSpecDefault {
     test("should find one person by id") {
       check(genPerson) { person =>
         // Given
-        val id = person.personId
+        val id             = person.personId
         val expectedResult = Option(person)
 
         // When
@@ -42,7 +40,7 @@ object PersonServiceSpec extends ZIOSpecDefault {
         // Then
         val resultEffect = for {
           service <- ZIO.service[PersonService]
-          result <- service.findPerson(id)
+          result  <- service.findPerson(id)
         } yield assertTrue(result == expectedResult)
 
         resultEffect.provide(PersonService.live, dependencies)
@@ -56,7 +54,7 @@ object PersonServiceSpec extends ZIOSpecDefault {
         // Then
         val resultEffect = for {
           service <- ZIO.service[PersonService]
-          result <- service.getAll
+          result  <- service.getAll
         } yield assertTrue(result == expectedResult)
 
         resultEffect.provide(PersonService.live, dependencies)
