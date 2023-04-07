@@ -2,7 +2,7 @@ package ru.d4team.chat.utils
 
 import zio.ZIO
 
-trait TestUtils {
+trait TestSuite {
   implicit class EffectOps[R, Err, Out](zio: ZIO[R, Option[Err], Out]) {
     // method will fail if the effect will succeed
     def expectFailure: ZIO[R, String, Err] = zio.foldZIO(

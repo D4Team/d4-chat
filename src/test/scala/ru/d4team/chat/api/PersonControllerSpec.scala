@@ -3,7 +3,7 @@ package ru.d4team.chat.api
 import ru.d4team.chat.Generators.{genPerson, genPersonList}
 import ru.d4team.chat.models.person.PersonResponse
 import ru.d4team.chat.services.PersonService
-import ru.d4team.chat.utils.{BodyExtractorSyntax, TestUtils}
+import ru.d4team.chat.utils.{BodyExtractorSyntax, TestSuite}
 import zio._
 import zio.http._
 import zio.http.model.Status
@@ -14,7 +14,7 @@ import zio.test.Assertion.equalTo
 import zio.test.TestAspect.{nondeterministic, parallel, silentLogging}
 import zio.test._
 
-object PersonControllerSpec extends ZIOSpecDefault with BodyExtractorSyntax with TestUtils {
+object PersonControllerSpec extends ZIOSpecDefault with BodyExtractorSyntax with TestSuite {
   @mockable[PersonService]
   object MockPersonService
 
