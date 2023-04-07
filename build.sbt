@@ -15,19 +15,19 @@ name       := "D4 Chat"
 version    := "0.1.0-SNAPSHOT"
 
 scalacOptions ++= Seq(
-  "-deprecation",               // Emit warning and location for usages of deprecated APIs.
-  "-explaintypes",              // Explain type errors in more detail.
-  "-feature",                   // Emit warning and location for usages of features that should be imported explicitly.
-  "-unchecked",                 // Enable additional warnings where generated code depends on assumptions.
-  "-Wdead-code",                // Warn when dead code is identified.
-  "-Wextra-implicit",           // Warn when more than one implicit parameter section is defined.
-  "-Wunused",                   // Warn if something from check list is unused.
+  "-deprecation",                                    // Emit warning and location for usages of deprecated APIs.
+  "-explaintypes",                                   // Explain type errors in more detail.
+  "-feature",                                        // Emit warning and location for usages of features that should be imported explicitly.
+  "-unchecked",                                      // Enable additional warnings where generated code depends on assumptions.
+  "-Wdead-code",                                     // Warn when dead code is identified.
+  "-Wextra-implicit",                                // Warn when more than one implicit parameter section is defined.
+  "-Wunused",                                        // Warn if something from check list is unused.
   "-Wconf:msg=(Quoted|idiomContext@_)&cat=unused:s", // add exceptions for quill
-  "-Wvalue-discard",            // Warn when non-Unit expression results are unused.
-  "-Ywarn-macros:after",        // Needed for correct implicit resolution.
-  "-Wconf:cat=unused-nowarn:s", // Silence nowarn usage warnings.
-  "-Xfatal-warnings",           // Fail the compilation if there are any warnings.
-  "-Ymacro-annotations"         // Bring textual abstraction to the level of definitions.
+  "-Wvalue-discard",                                 // Warn when non-Unit expression results are unused.
+  "-Ywarn-macros:after",                             // Needed for correct implicit resolution.
+  "-Wconf:cat=unused-nowarn:s",                      // Silence nowarn usage warnings.
+  "-Xfatal-warnings",                                // Fail the compilation if there are any warnings.
+  "-Ymacro-annotations"                              // Bring textual abstraction to the level of definitions.
 )
 
 lazy val buildInfoSettings = buildInfoKeys ++= Seq[BuildInfoKey](
@@ -60,7 +60,7 @@ lazy val root = project
     libraryDependencies ++= monocle,
     libraryDependencies ++= flyway,
     libraryDependencies += chimney,
-    libraryDependencies ++= zioQuill,
+    libraryDependencies ++= zioQuill
   )
   .settings(
     libraryDependencies += zioMock,

@@ -1,6 +1,7 @@
 *.class
 *.log
 .sc
+.env
 
 .bsp
 .idea
