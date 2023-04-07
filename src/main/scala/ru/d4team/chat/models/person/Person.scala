@@ -15,6 +15,8 @@ import java.util.UUID
 
 object Person {
   implicit val decoder: JsonDecoder[Person] = DeriveJsonDecoder.gen[Person]
+  implicit val encoder: JsonEncoder[Person] = DeriveJsonEncoder.gen[Person]
+
   def fromRecord(r: PersonRecord): Person = r.transformInto[Person]
 }
 

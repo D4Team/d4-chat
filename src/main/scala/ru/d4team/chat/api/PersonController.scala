@@ -2,10 +2,11 @@ package ru.d4team.chat.api
 
 import ru.d4team.chat.models.person.{Person, PersonResponse}
 import ru.d4team.chat.services.PersonService
+import ru.d4team.chat.utils.BodyExtractorSyntax
 import zio._
-import zio.json.{DecoderOps, EncoderOps}
 import zio.http._
 import zio.http.model.{Method, Status}
+import zio.json.EncoderOps
 
 import java.util.UUID
 
@@ -17,7 +18,7 @@ object PersonController {
   val live: URLayer[PersonService, PersonController] = ZLayer.fromFunction(PersonControllerImpl.apply _)
 }
 
-final case class PersonControllerImpl(personService: PersonService) extends PersonController {
+final case class PersonControllerImpl(personService: PersonService) extends PersonController with BodyExtractorSyntax {
   private def getAll: Task[Response] =
     personService.getAll.map(_.map(PersonResponse.fromPerson)).map(seq => Response.json(seq.toJson))
 
@@ -28,9 +29,8 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
     }
 
   private def addPerson(req: Request): Task[Response] = for {
-    rawBody       <- req.body.asString
     // TODO better to implement PersonRequest which will not include `id` field
-    person        <- ZIO.fromEither(rawBody.fromJson[Person].left.map(err => new Throwable(err)))
+    person        <- req.body.extractTo[Person]
     addedPerson   <- personService.addPerson(person)
     personResponse = PersonResponse.fromPerson(addedPerson)
   } yield Response.json(personResponse.toJson)
@@ -42,5 +42,5 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
       case req @ Method.POST -> !! / "persons"     => addPerson(req)
     }
     .tapErrorCauseZIO(ZIO.logCause(_))
-    .mapError(err => Response.json(err.getMessage)) // TODO handle errors properly
+    .mapError(err => Response.json(err.getMessage).setStatus(Status.InternalServerError)) // TODO handle errors properly
 }
