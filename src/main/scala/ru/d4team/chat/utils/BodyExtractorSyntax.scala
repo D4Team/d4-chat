@@ -4,7 +4,7 @@ import zio.http.Body
 import zio.json.{JsonDecoder, _}
 import zio.{Task, ZIO}
 
-trait BodyExtractorSyntax {
+object BodyExtractorSyntax {
   implicit class BodyOps(body: Body) {
     def extractTo[B: JsonDecoder]: Task[B] = for {
       rawBody   <- body.asString

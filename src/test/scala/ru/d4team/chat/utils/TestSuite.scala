@@ -8,7 +8,7 @@ trait TestSuite {
     def expectFailure: ZIO[R, String, Err] = zio.foldZIO(
       {
         case Some(err) => ZIO.succeed(err)
-        case None => ZIO.fail("Expected to get error, but not")
+        case None      => ZIO.fail("Expected to get error, but not")
       },
       _ => ZIO.fail("Expected to get error, but not")
     )

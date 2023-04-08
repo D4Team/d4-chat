@@ -2,7 +2,7 @@ package ru.d4team.chat.api
 
 import ru.d4team.chat.models.person.{Person, PersonResponse}
 import ru.d4team.chat.services.PersonService
-import ru.d4team.chat.utils.BodyExtractorSyntax
+import ru.d4team.chat.utils.BodyExtractorSyntax._
 import zio._
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -18,7 +18,7 @@ object PersonController {
   val live: URLayer[PersonService, PersonController] = ZLayer.fromFunction(PersonControllerImpl.apply _)
 }
 
-final case class PersonControllerImpl(personService: PersonService) extends PersonController with BodyExtractorSyntax {
+final case class PersonControllerImpl(personService: PersonService) extends PersonController {
   private def getAll: Task[Response] =
     personService.getAll.map(_.map(PersonResponse.fromPerson)).map(seq => Response.json(seq.toJson))
 
