@@ -45,6 +45,40 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
 
         testF.provide(ChatRoomsService.mapStorageLive)
       }
+    },
+    test("'leave' should remove a participant from a chat room") {
+      check(Gen.alphaNumericString) { room =>
+        val testF = for {
+          // given
+          chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
+          channel      <- TestWebSocketChannel.make
+          newChannel   <- TestWebSocketChannel.make
+          _            <- chatRooms.join(channel, room)
+          _            <- chatRooms.join(newChannel, room)
+          expectedRoom  = TrieMap(channel.id -> channel)
+          expectedRooms = TrieMap(room -> expectedRoom)
+
+          // then
+          _ <- chatRooms.leave(newChannel, room)
+        } yield assertTrue(chatRooms.rooms == expectedRooms)
+
+        testF.provide(ChatRoomsService.mapStorageLive)
+      }
+    },
+    test("'leave' should remove a chat room after a last participant left it") {
+      check(Gen.alphaNumericString) { room =>
+        val testF = for {
+          // given
+          chatRooms <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
+          channel   <- TestWebSocketChannel.make
+          _         <- chatRooms.join(channel, room)
+
+          // then
+          _ <- chatRooms.leave(channel, room)
+        } yield assertTrue(chatRooms.rooms == TrieMap.empty[String, ChatRoomMap])
+
+        testF.provide(ChatRoomsService.mapStorageLive)
+      }
     }
   ) @@ nondeterministic @@ parallel
 }
