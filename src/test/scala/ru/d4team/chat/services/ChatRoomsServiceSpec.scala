@@ -5,7 +5,7 @@ import ru.d4team.chat.services.ChatRoomsService._
 import ru.d4team.chat.utils._
 import zio._
 import zio.http.ChannelEvent.ChannelRead
-import zio.http.socket.WebSocketFrame
+import zio.http.socket.{WebSocketChannel, WebSocketFrame}
 import zio.test._
 import zio.test.Assertion._
 import zio.interop.catz.core._
@@ -20,7 +20,7 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel      <- TestWebSocketChannel.make
+          channel      <- TestWebSocketChannel.make[WebSocketChannel]
           expectedRoom  = TrieMap(channel.id -> channel)
           expectedRooms = TrieMap(room -> expectedRoom)
 
@@ -38,8 +38,8 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel      <- TestWebSocketChannel.make
-          newChannel   <- TestWebSocketChannel.make
+          channel      <- TestWebSocketChannel.make[WebSocketChannel]
+          newChannel   <- TestWebSocketChannel.make[WebSocketChannel]
           expectedRoom  = TrieMap(channel.id -> channel, newChannel.id -> newChannel)
           expectedRooms = TrieMap(room -> expectedRoom)
 
@@ -56,8 +56,8 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel      <- TestWebSocketChannel.make
-          newChannel   <- TestWebSocketChannel.make
+          channel      <- TestWebSocketChannel.make[WebSocketChannel]
+          newChannel   <- TestWebSocketChannel.make[WebSocketChannel]
           _            <- chatRooms.join(channel, room)
           _            <- chatRooms.join(newChannel, room)
           expectedRoom  = TrieMap(channel.id -> channel)
@@ -75,7 +75,7 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel   <- TestWebSocketChannel.make
+          channel   <- TestWebSocketChannel.make[WebSocketChannel]
           _         <- chatRooms.join(channel, room)
 
           // then
@@ -91,9 +91,9 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
           for {
             // given
             chatRooms     <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-            mainChannel   <- TestWebSocketChannel.make
-            mainChannels  <- List.fill(size)(TestWebSocketChannel.make).sequence
-            otherChannels <- List.fill(size)(TestWebSocketChannel.make).sequence
+            mainChannel   <- TestWebSocketChannel.make[TestWebSocketChannel]
+            mainChannels  <- List.fill(size)(TestWebSocketChannel.make[TestWebSocketChannel]).sequence
+            otherChannels <- List.fill(size)(TestWebSocketChannel.make[TestWebSocketChannel]).sequence
             _             <- chatRooms.join(mainChannel, room)
             _             <- ZIO.foreachParDiscard(mainChannels)(chatRooms.join(_, room))
             _             <- ZIO.foreachParDiscard(otherChannels)(chatRooms.join(_, s"$room-2")) // add participants to another room
@@ -101,9 +101,9 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
 
             // then
             _              <- chatRooms.broadcast(mainChannel, room, message)
-            channelEvents  <- mainChannel.asInstanceOf[TestWebSocketChannel].counterpartEvents.takeAll
-            channelsEvents <- mainChannels.map(_.asInstanceOf[TestWebSocketChannel].counterpartEvents.takeAll).sequence
-            otherEvents    <- otherChannels.map(_.asInstanceOf[TestWebSocketChannel].counterpartEvents.takeAll).sequence
+            channelEvents  <- mainChannel.counterpartEvents.takeAll
+            channelsEvents <- mainChannels.map(_.counterpartEvents.takeAll).sequence
+            otherEvents    <- otherChannels.map(_.counterpartEvents.takeAll).sequence
           } yield assert(channelEvents)(not(hasLast(equalTo(messageEvent)))) &&
             assert(channelsEvents)(forall(hasLast(equalTo(messageEvent)))) &&
             assert(otherEvents)(forall(not(hasLast(equalTo(messageEvent)))))

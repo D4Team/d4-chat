@@ -8,7 +8,7 @@ import zio.http.ChannelEvent._
 import java.util.UUID
 
 object TestWebSocketChannel {
-  def make: UIO[WebSocketChannel] =
+  def make[T >: TestWebSocketChannel]: UIO[T] =
     for {
       queue <- Queue.unbounded[ChannelEvent.Event[WebSocketFrame]]
       _     <- queue.offer(UserEventTriggered(UserEvent.HandshakeComplete))
