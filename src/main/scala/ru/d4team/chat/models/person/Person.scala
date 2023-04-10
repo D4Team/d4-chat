@@ -1,11 +1,12 @@
 package ru.d4team.chat.models.person
 
 import io.scalaland.chimney.dsl.TransformerOps
+import zio.json._
 
 import java.time.Instant
 import java.util.UUID
 
-final case class Person(
+@jsonMemberNames(SnakeCase) final case class Person(
     personId: UUID,
     name: String,
     birthDate: Instant,
@@ -13,6 +14,9 @@ final case class Person(
 )
 
 object Person {
+  implicit val decoder: JsonDecoder[Person] = DeriveJsonDecoder.gen[Person]
+  implicit val encoder: JsonEncoder[Person] = DeriveJsonEncoder.gen[Person]
+
   def fromRecord(r: PersonRecord): Person = r.transformInto[Person]
 }
 

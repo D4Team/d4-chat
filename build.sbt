@@ -53,6 +53,7 @@ lazy val root = project
   .settings(
     libraryDependencies += zio,
     libraryDependencies += zioHttp,
+    libraryDependencies += zioJson,
     libraryDependencies ++= zioConfig,
     libraryDependencies += cats,
     libraryDependencies += cats3Interop,

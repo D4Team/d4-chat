@@ -6,6 +6,7 @@ object Dependencies {
   object Versions {
     lazy val zioVersion           = "2.0.10"
     lazy val zioHttpVersion       = "0.0.5"
+    lazy val zioJsonVersion       = "0.5.0"
     lazy val zioLoggingVersion    = "2.1.7"
     lazy val zioConfigVersion     = "3.0.7"
     lazy val zioMockVersion       = "1.0.0-RC9"
@@ -24,6 +25,8 @@ object Dependencies {
   lazy val zio: ModuleID = "dev.zio" %% "zio" % zioVersion
 
   lazy val zioHttp = "dev.zio" %% "zio-http" % zioHttpVersion
+
+  lazy val zioJson = "dev.zio" %% "zio-json" % zioJsonVersion
 
   lazy val logging: Seq[ModuleID] = Seq(
     "dev.zio"       %% "zio-logging-slf4j" % zioLoggingVersion,
