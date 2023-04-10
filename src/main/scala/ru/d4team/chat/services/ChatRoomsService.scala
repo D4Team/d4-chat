@@ -13,6 +13,7 @@ trait ChatRoomsService[Storage] {
 
   def join(channel: Channel[WebSocketFrame], room: String): UIO[Unit]
   def leave(channel: Channel[WebSocketFrame], room: String): UIO[Unit]
+  def broadcast(channel: Channel[WebSocketFrame], room: String, message: String): Task[Unit]
 }
 
 object ChatRoomsService {
@@ -42,4 +43,11 @@ final case class ChatRoomsServiceMapImpl(private[services] val rooms: ChatRoomsM
         case None       => None // TODO (Aleksei Litkovetc) - Log a leaving from non-existent room
       }
     }.unit
+
+  def broadcast(channel: Channel[WebSocketFrame], room: String, message: String): Task[Unit] =
+    rooms.get(room).fold[Task[Unit]](ZIO.unit) { room =>
+      ZIO.foreachParDiscard(room.view.filterKeys(_ != channel.id).values) { channel =>
+        channel.writeAndFlush(WebSocketFrame.text(message))
+      }
+    }
 }
