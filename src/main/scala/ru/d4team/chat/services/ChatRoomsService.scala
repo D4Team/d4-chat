@@ -46,8 +46,7 @@ final case class ChatRoomsServiceMapImpl(private[services] val rooms: ChatRoomsM
 
   def broadcast(channel: Channel[WebSocketFrame], room: String, message: String): Task[Unit] =
     rooms.get(room).fold[Task[Unit]](ZIO.unit) { room =>
-      ZIO.foreachParDiscard(room.view.filterKeys(_ != channel.id).values) { channel =>
-        channel.writeAndFlush(WebSocketFrame.text(message))
-      }
+      val otherChannels = room.view.filterKeys(_ != channel.id).values
+      ZIO.foreachParDiscard(otherChannels)(_.writeAndFlush(WebSocketFrame.text(message)))
     }
 }
