@@ -1,9 +1,14 @@
 package ru.d4team.chat.services
 
+import cats.implicits._
 import ru.d4team.chat.services.ChatRoomsService._
 import ru.d4team.chat.utils._
 import zio._
+import zio.http.ChannelEvent.ChannelRead
+import zio.http.socket.{WebSocketChannel, WebSocketFrame}
 import zio.test._
+import zio.test.Assertion._
+import zio.interop.catz.core._
 
 import scala.collection.concurrent.TrieMap
 import zio.test.TestAspect._
@@ -15,7 +20,7 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel      <- TestWebSocketChannel.make
+          channel      <- TestWebSocketChannel.make[WebSocketChannel]
           expectedRoom  = TrieMap(channel.id -> channel)
           expectedRooms = TrieMap(room -> expectedRoom)
 
@@ -33,8 +38,8 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel      <- TestWebSocketChannel.make
-          newChannel   <- TestWebSocketChannel.make
+          channel      <- TestWebSocketChannel.make[WebSocketChannel]
+          newChannel   <- TestWebSocketChannel.make[WebSocketChannel]
           expectedRoom  = TrieMap(channel.id -> channel, newChannel.id -> newChannel)
           expectedRooms = TrieMap(room -> expectedRoom)
 
@@ -51,8 +56,8 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms    <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel      <- TestWebSocketChannel.make
-          newChannel   <- TestWebSocketChannel.make
+          channel      <- TestWebSocketChannel.make[WebSocketChannel]
+          newChannel   <- TestWebSocketChannel.make[WebSocketChannel]
           _            <- chatRooms.join(channel, room)
           _            <- chatRooms.join(newChannel, room)
           expectedRoom  = TrieMap(channel.id -> channel)
@@ -70,12 +75,38 @@ object ChatRoomsServiceSpec extends ZIOSpecDefault {
         val testF = for {
           // given
           chatRooms <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
-          channel   <- TestWebSocketChannel.make
+          channel   <- TestWebSocketChannel.make[WebSocketChannel]
           _         <- chatRooms.join(channel, room)
 
           // then
           _ <- chatRooms.leave(channel, room)
         } yield assertTrue(chatRooms.rooms == TrieMap.empty[String, ChatRoomMap])
+
+        testF.provide(ChatRoomsService.mapStorageLive)
+      }
+    },
+    test("'broadcast' should send a message from one channel to others in the same room") {
+      check(Gen.alphaNumericString, Gen.alphaNumericString, Gen.int(1, 10)) { (room, message, size) =>
+        val testF =
+          for {
+            // given
+            chatRooms     <- ZIO.service[ChatRoomsService[ChatRoomsMap]]
+            mainChannel   <- TestWebSocketChannel.make[TestWebSocketChannel]
+            mainChannels  <- List.fill(size)(TestWebSocketChannel.make[TestWebSocketChannel]).sequence
+            otherChannels <- List.fill(size)(TestWebSocketChannel.make[TestWebSocketChannel]).sequence
+            _             <- chatRooms.join(mainChannel, room)
+            _             <- ZIO.foreachParDiscard(mainChannels)(chatRooms.join(_, room))
+            _             <- ZIO.foreachParDiscard(otherChannels)(chatRooms.join(_, s"$room-2")) // add participants to another room
+            messageEvent   = ChannelRead(WebSocketFrame.text(message))
+
+            // then
+            _              <- chatRooms.broadcast(mainChannel, room, message)
+            channelEvents  <- mainChannel.counterpartEvents.takeAll
+            channelsEvents <- mainChannels.map(_.counterpartEvents.takeAll).sequence
+            otherEvents    <- otherChannels.map(_.counterpartEvents.takeAll).sequence
+          } yield assert(channelEvents)(not(hasLast(equalTo(messageEvent)))) &&
+            assert(channelsEvents)(forall(hasLast(equalTo(messageEvent)))) &&
+            assert(otherEvents)(forall(not(hasLast(equalTo(messageEvent)))))
 
         testF.provide(ChatRoomsService.mapStorageLive)
       }
