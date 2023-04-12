@@ -4,6 +4,8 @@ import ru.d4team.chat.api.{ChatRoomsController, PersonController}
 import ru.d4team.chat.config.{AppConfig, PostgresConfig, ServerConfig}
 import ru.d4team.chat.dao.PersonDAO
 import ru.d4team.chat.db.DBMigrator
+import ru.d4team.chat.dummy.api.DummyController
+import ru.d4team.chat.dummy.services.{ChildDummyServiceA, ChildDummyServiceB, MainDummyService}
 import ru.d4team.chat.services.{ChatRoomsService, PersonService}
 import zio._
 import zio.http._
@@ -18,7 +20,8 @@ object Main extends ZIOAppDefault {
     config       <- ZIO.service[ServerConfig]
     personApi    <- ZIO.service[PersonController]
     chatRoomsApi <- ZIO.service[ChatRoomsController]
-    routes        = personApi.route ++ chatRoomsApi.route
+    dummyApi     <- ZIO.service[DummyController]
+    routes        = personApi.route ++ chatRoomsApi.route ++ dummyApi.route
     _            <- Server.install(routes)
     _            <- ZIO.logInfo(s"Started server on http://${config.host}:${config.port}")
     exitCode     <- ZIO.never.exitCode
@@ -48,6 +51,11 @@ object Main extends ZIOAppDefault {
     // Chat rooms
     ChatRoomsService.mapStorageLive,
     ChatRoomsController.live,
+    // Dummy
+    DummyController.live,
+    MainDummyService.live,
+    ChildDummyServiceA.live,
+    ChildDummyServiceB.live,
     // Logger
     loggerLayer
   )

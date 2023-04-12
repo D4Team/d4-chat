@@ -61,7 +61,8 @@ lazy val root = project
     libraryDependencies ++= monocle,
     libraryDependencies ++= flyway,
     libraryDependencies += chimney,
-    libraryDependencies ++= zioQuill
+    libraryDependencies ++= zioQuill,
+    libraryDependencies ++= tapir,
   )
   .settings(
     libraryDependencies += zioMock,
