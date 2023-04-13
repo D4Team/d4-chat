@@ -17,7 +17,7 @@ object DummyControllerSpec extends ZIOSpecDefault {
   object MainDummyService
 
   override def spec: Spec[TestEnvironment with Scope, Any] = suite("DummyControllerSpec")(
-    test("should return ") {
+    test("should return dummy response") {
       check(genDummy) { dummy =>
         // Given
         val request  = Request.post(Body.fromString(dummy.toJson), URL(!! / "dummy"))
@@ -35,6 +35,19 @@ object DummyControllerSpec extends ZIOSpecDefault {
 
         resultEffect.provide(DummyController.live, dependencies)
       }
+    },
+    test("should open swagger") {
+      // Given
+      val request = Request.get(URL(!! / "docs" / "docs.yaml"))
+
+      // Then
+      val resultEffect = for {
+        app      <- ZIO.service[DummyController]
+        response <- app.route.runZIO(request)
+        content  <- response.body.asString
+      } yield assertTrue(response.status.isSuccess, content.startsWith("openapi: 3.0.3"))
+
+      resultEffect.provide(DummyController.live, MainDummyService.empty)
     }
   )
 }

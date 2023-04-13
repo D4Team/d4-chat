@@ -72,12 +72,12 @@ object Dependencies {
   )
 
   lazy val tapir: Seq[ModuleID] = Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-core"              % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-zio"               % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server"   % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-json-zio"          % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"      % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion
-  )
+    "tapir-core",
+    "tapir-zio",
+    "tapir-zio-http-server",
+    "tapir-json-zio",
+    "tapir-openapi-docs",
+    "tapir-swagger-ui-bundle"
+  ).map(name => "com.softwaremill.sttp.tapir" %% name % tapirVersion)
 
 }
