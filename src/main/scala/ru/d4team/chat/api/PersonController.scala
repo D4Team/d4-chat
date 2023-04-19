@@ -4,16 +4,18 @@ import ru.d4team.chat.models.person.{Person, PersonResponse}
 import ru.d4team.chat.services.PersonService
 import sttp.apispec.openapi.circe.yaml._
 import sttp.model.StatusCode
-import sttp.tapir.Endpoint
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.zio._
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
 import sttp.tapir.swagger.SwaggerUI
 import sttp.tapir.ztapir._
+import sttp.tapir.{Endpoint, EndpointOutput}
 import zio._
 import zio.http.{App, HttpApp}
 
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 trait PersonController extends BaseController {
@@ -29,32 +31,52 @@ object PersonController {
 final case class PersonControllerImpl(personService: PersonService) extends PersonController {
   private val baseEndpoint = endpoint.in("persons")
 
-  override val getAllEndpoint: Endpoint[Unit, Unit, ControllerError.InternalServerError, List[PersonResponse], Any] =
-    baseEndpoint.get
-      .out(jsonBody[List[PersonResponse]])
-      .errorOut(
-        statusCode(StatusCode.InternalServerError)
-          .and(jsonBody[ControllerError.InternalServerError].description("Internal server error"))
+  private val internalError: EndpointOutput[ControllerError.InternalServerError] =
+    statusCode(StatusCode.InternalServerError)
+      .and(
+        jsonBody[ControllerError.InternalServerError]
+          .description("Internal server error")
+          .example(ControllerError.InternalServerError("Error on server side"))
       )
 
-  private val getAllServerEndpoint: IO[ControllerError.InternalServerError, List[PersonResponse]] = personService.getAll.mapBoth(
-    err => ControllerError.InternalServerError(err.getMessage), // TODO grigorii_berezin: get error message on 5xx only for debug purposes
-    _.map(PersonResponse.fromPerson)
-  )
+  private val personResponseExample1 =
+    PersonResponse(UUID.randomUUID(), "Example name", Instant.now(), "Additional info")
+  private val personResponseExample2 =
+    PersonResponse(UUID.randomUUID(), "Name and surname", Instant.now().minus(1, ChronoUnit.DAYS), "Living address")
+  private val personRequestExample   = Person(UUID.randomUUID(), "Name to add", Instant.now(), "Favourite color")
+
+  override val getAllEndpoint: Endpoint[Unit, Unit, ControllerError.InternalServerError, List[PersonResponse], Any] =
+    baseEndpoint.get
+      .out(
+        jsonBody[List[PersonResponse]]
+          .description("All active persons")
+          .example(List(personResponseExample1, personResponseExample2))
+      )
+      .errorOut(internalError)
+
+  private val getAllServerEndpoint: IO[ControllerError.InternalServerError, List[PersonResponse]] =
+    personService.getAll.mapBoth(
+      err =>
+        ControllerError.InternalServerError(
+          err.getMessage
+        ), // TODO grigorii_berezin: get error message on 5xx only for debug purposes
+      _.map(PersonResponse.fromPerson)
+    )
 
   override val findPersonEndpoint: Endpoint[Unit, UUID, ControllerError, PersonResponse, Any] =
     baseEndpoint.get
-      .in(path[UUID]("person id"))
-      .out(jsonBody[PersonResponse])
+      .in(path[UUID]("person-id"))
+      .out(jsonBody[PersonResponse].description("Founded person").example(personResponseExample1))
       .errorOut(
         oneOf[ControllerError](
+          oneOfVariant(internalError),
           oneOfVariant(
-            statusCode(StatusCode.InternalServerError)
-              .and(
-                jsonBody[ControllerError.InternalServerError].description("Internal server error")
-              )
-          ),
-          oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[ControllerError.NotFound].description("Not found")))
+            statusCode(StatusCode.NotFound).and(
+              jsonBody[ControllerError.NotFound]
+                .description("Not found")
+                .example(ControllerError.NotFound(s"Person with id: `person-id` does not exist"))
+            )
+          )
         )
       )
 
@@ -71,16 +93,16 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
 
   override val addPersonEndpoint: Endpoint[Unit, Person, ControllerError.InternalServerError, PersonResponse, Any] =
     baseEndpoint.post
-      .in(jsonBody[Person])
-      .out(jsonBody[PersonResponse])
-      .errorOut(
-        statusCode(StatusCode.InternalServerError)
-          .and(jsonBody[ControllerError.InternalServerError].description("Internal server error"))
+      .in(jsonBody[Person].description("Person body to add").example(personRequestExample))
+      .out(
+        jsonBody[PersonResponse].description("Added person").example(PersonResponse.fromPerson(personRequestExample))
       )
+      .errorOut(internalError)
 
-  private def addPersonServiceEndpoint(person: Person): IO[ControllerError.InternalServerError, PersonResponse] = personService
-    .addPerson(person)
-    .mapBoth(err => ControllerError.InternalServerError(err.getMessage), PersonResponse.fromPerson)
+  private def addPersonServiceEndpoint(person: Person): IO[ControllerError.InternalServerError, PersonResponse] =
+    personService
+      .addPerson(person)
+      .mapBoth(err => ControllerError.InternalServerError(err.getMessage), PersonResponse.fromPerson)
 
   private val allRoutes: HttpApp[Any, Throwable] = ZioHttpInterpreter().toHttp(
     List(

@@ -2,15 +2,17 @@ package ru.d4team.chat.api
 
 import zio.json._
 
-sealed trait ControllerError
+@jsonMemberNames(SnakeCase) sealed trait ControllerError {
+  def errorMessage: String
+}
 
 object ControllerError {
-  final case class NotFound(msg: String) extends ControllerError
+  @jsonMemberNames(SnakeCase) final case class NotFound(errorMessage: String) extends ControllerError
   object NotFound {
     implicit val codec: JsonCodec[NotFound] = DeriveJsonCodec.gen
   }
 
-  final case class InternalServerError(msg: String) extends ControllerError
+  @jsonMemberNames(SnakeCase) final case class InternalServerError(errorMessage: String) extends ControllerError
   object InternalServerError {
     implicit val codec: JsonCodec[InternalServerError] = DeriveJsonCodec.gen
   }
