@@ -2,17 +2,14 @@ package ru.d4team.chat.api
 
 import ru.d4team.chat.models.person.{Person, PersonResponse}
 import ru.d4team.chat.services.PersonService
-import sttp.apispec.openapi.circe.yaml._
 import sttp.model.StatusCode
-import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.zio._
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
-import sttp.tapir.swagger.SwaggerUI
 import sttp.tapir.ztapir._
 import sttp.tapir.{AnyEndpoint, Endpoint, EndpointOutput}
 import zio._
-import zio.http.{App, HttpApp}
+import zio.http.App
 
 import java.time.Instant
 import java.util.UUID
@@ -118,20 +115,15 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
       .addPerson(person)
       .mapBoth(err => ControllerError.InternalServerError(err.getMessage), PersonResponse.fromPerson)
 
-  private val allRoutes: HttpApp[Any, Throwable] = ZioHttpInterpreter().toHttp(
-    List(
-      getAllEndpoint.zServerLogic(_ => getAllServerEndpoint),
-      findPersonEndpoint.zServerLogic(id => findPersonServerEndpoint(id)),
-      addPersonEndpoint.zServerLogic(p => addPersonServiceEndpoint(p))
+  override def route: App[Any] = ZioHttpInterpreter()
+    .toHttp(
+      List(
+        getAllEndpoint.zServerLogic(_ => getAllServerEndpoint),
+        findPersonEndpoint.zServerLogic(id => findPersonServerEndpoint(id)),
+        addPersonEndpoint.zServerLogic(p => addPersonServiceEndpoint(p))
+      )
     )
-  )
-
-  override def route: App[Any] = {
-    val openApi       = OpenAPIDocsInterpreter().toOpenAPI(endpoints, "Person Controller", "0.1")
-    val swaggerRoutes = ZioHttpInterpreter().toHttp(SwaggerUI[Task](openApi.toYaml))
-
-    allRoutes ++ swaggerRoutes
-  }.withDefaultErrorResponse
+    .withDefaultErrorResponse
 
   override def endpoints: List[AnyEndpoint] =
     List(getAllEndpoint, findPersonEndpoint, addPersonEndpoint).map(_.tag("Person endpoints"))
