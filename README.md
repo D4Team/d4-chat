@@ -2,14 +2,14 @@
 
 D4 chat is a backend server application for chatting.
 
-## Run application
+## Run application (local)
 
-1. Run postgres database. The simplest option is to go to the `docker` directory and run docker
+1. Run postgres database. The simplest option is to go to the app root directory and run docker
    compose: `docker-compose up -d`.
 2. Provide environment variables for app. As a convenient option, go to the `src/main/resources` directory and create
    the `params.conf` file with the following example data:
 
-```
+```lombok.config
 APP_HOST = localhost
 APP_PORT = 8090
 
@@ -21,6 +21,27 @@ DB_PASSWORD="password"
 ```
 
 3. Run the application by the following command `sbt run` or just from your IDE.
+
+## Run application (container)
+
+1. (as long as we don't have repository for our images) Build image based on `Dockerfile` by command `docker build -t <image name> .`
+2. Rename app image name in `docker-compose.yml` file with your `<image name>`
+3. Provide environments variables for containers. As a convenient option, go to the app root package and create the `.env` file with the following  example data:
+
+```lombok.config
+APP_HOST=0.0.0.0
+APP_PORT=8090
+
+DB_HOST=d4chat-postgres
+DB_PORT=5432
+DB_PORT_DERIVE=5444
+DB_NAME=d4chat-postgres
+DB_USER=postgres
+DB_SCHEMA=messaging
+DB_PASSWORD=password
+```
+
+4. Run the application by going to the app root package and run docker compose: `docker-compose up -d`
 
 ## Code linting and auto-refactoring
 
