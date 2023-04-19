@@ -10,12 +10,11 @@ import sttp.tapir.json.zio._
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
 import sttp.tapir.swagger.SwaggerUI
 import sttp.tapir.ztapir._
-import sttp.tapir.{Endpoint, EndpointOutput}
+import sttp.tapir.{AnyEndpoint, Endpoint, EndpointOutput}
 import zio._
 import zio.http.{App, HttpApp}
 
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 trait PersonController extends BaseController {
@@ -40,10 +39,25 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
       )
 
   private val personResponseExample1 =
-    PersonResponse(UUID.randomUUID(), "Example name", Instant.now(), "Additional info")
+    PersonResponse(
+      UUID.fromString("38e80369-9310-4d5a-9bd2-fead18203724"),
+      "Example name",
+      Instant.parse("2023-04-19T14:30:00Z"),
+      "Additional info"
+    )
   private val personResponseExample2 =
-    PersonResponse(UUID.randomUUID(), "Name and surname", Instant.now().minus(1, ChronoUnit.DAYS), "Living address")
-  private val personRequestExample   = Person(UUID.randomUUID(), "Name to add", Instant.now(), "Favourite color")
+    PersonResponse(
+      UUID.fromString("11dfd0a9-852b-4972-883a-0d227f55c60d"),
+      "Name and surname",
+      Instant.parse("2002-02-21T14:30:00Z"),
+      "Living address"
+    )
+  private val personRequestExample   = Person(
+    UUID.fromString("6fa94734-96af-4318-8276-18f89336e127"),
+    "Name to add",
+    Instant.parse("1998-06-11T12:30:00Z"),
+    "Favourite color"
+  )
 
   override val getAllEndpoint: Endpoint[Unit, Unit, ControllerError.InternalServerError, List[PersonResponse], Any] =
     baseEndpoint.get
@@ -119,6 +133,6 @@ final case class PersonControllerImpl(personService: PersonService) extends Pers
     allRoutes ++ swaggerRoutes
   }.withDefaultErrorResponse
 
-  override def endpoints: List[Endpoint[_, _, _, _, _]] =
+  override def endpoints: List[AnyEndpoint] =
     List(getAllEndpoint, findPersonEndpoint, addPersonEndpoint).map(_.tag("Person endpoints"))
 }

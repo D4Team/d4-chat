@@ -4,7 +4,8 @@ import ru.d4team.chat.Generators.{genPerson, genPersonList}
 import ru.d4team.chat.models.person.PersonResponse
 import ru.d4team.chat.services.PersonService
 import ru.d4team.chat.utils.BodyExtractorSyntax._
-import ru.d4team.chat.utils.TestSuite
+import ru.d4team.chat.utils.SnapshotSuite
+import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import zio._
 import zio.http._
 import zio.http.model.Status
@@ -15,11 +16,22 @@ import zio.test.Assertion.equalTo
 import zio.test.TestAspect.{nondeterministic, parallel, silentLogging}
 import zio.test._
 
-object PersonControllerSpec extends ZIOSpecDefault with TestSuite {
+object PersonControllerSpec extends ZIOSpecDefault with SnapshotSuite {
   @mockable[PersonService]
   object MockPersonService
 
   override def spec: Spec[TestEnvironment with Scope, Any] = suite("PersonControllerSpec")(
+    test("should match swagger docs") {
+      // When
+      val resultEffect = for {
+        app       <- ZIO.service[PersonController]
+        openApi    = OpenAPIDocsInterpreter().toOpenAPI(app.endpoints, "Test Controller", "0.1")
+        assertion <- openApi.matchSnapshot
+      } yield assertion
+
+      // Then
+      resultEffect.provide(PersonController.live, MockPersonService.empty)
+    },
     test("should return all persons") {
       check(genPersonList) { persons =>
         // Given
@@ -94,7 +106,8 @@ object PersonControllerSpec extends ZIOSpecDefault with TestSuite {
     test("should return error message") {
       check(Gen.alphaNumericString) { errorMessage =>
         // Given
-        val request = Request.get(URL(!! / "persons"))
+        val request       = Request.get(URL(!! / "persons"))
+        val expectedError = s"""{"error_message":"$errorMessage"}"""
 
         // When
         val dependencies = MockPersonService.GetAll(failure(new Throwable(errorMessage)))
@@ -102,9 +115,9 @@ object PersonControllerSpec extends ZIOSpecDefault with TestSuite {
         // Then
         val resultEffect = for {
           app      <- ZIO.service[PersonController]
-          response <- app.route.runZIO(request).expectFailure
+          response <- app.route.runZIO(request)
           result   <- response.body.asString
-        } yield assertTrue(response.status == Status.InternalServerError) && assertTrue(result == errorMessage)
+        } yield assertTrue(response.status == Status.InternalServerError, result == expectedError)
 
         resultEffect.provide(PersonController.live, dependencies)
       }
@@ -117,8 +130,8 @@ object PersonControllerSpec extends ZIOSpecDefault with TestSuite {
         // Then
         val resultEffect = for {
           app      <- ZIO.service[PersonController]
-          response <- app.route.runZIO(request).expectFailure
-        } yield assertTrue(response.status == Status.InternalServerError)
+          response <- app.route.runZIO(request)
+        } yield assertTrue(response.status == Status.BadRequest)
 
         resultEffect.provide(PersonController.live, MockPersonService.empty)
       }

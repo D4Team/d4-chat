@@ -2,6 +2,7 @@ package ru.d4team.chat.utils
 
 import zio.ZIO
 
+// still need for testing error handling from zio http side
 trait TestSuite {
   implicit class EffectOps[R, Err, Out](zio: ZIO[R, Option[Err], Out]) {
     // method will fail if the effect will succeed

@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: Test Controller
+  version: '0.1'
+paths:
+  /persons:
+    get:
+      tags:
+      - Person endpoints
+      operationId: getPersons
+      responses:
+        '200':
+          description: All active persons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonResponse'
+              example:
+              - person_id: 38e80369-9310-4d5a-9bd2-fead18203724
+                name: Example name
+                birth_date: '2023-04-19T14:30:00Z'
+                person_info: Additional info
+              - person_id: 11dfd0a9-852b-4972-883a-0d227f55c60d
+                name: Name and surname
+                birth_date: '2002-02-21T14:30:00Z'
+                person_info: Living address
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+              example:
+                error_message: Error on server side
+    post:
+      tags:
+      - Person endpoints
+      operationId: postPersons
+      requestBody:
+        description: Person body to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+            example:
+              person_id: 6fa94734-96af-4318-8276-18f89336e127
+              name: Name to add
+              birth_date: '1998-06-11T12:30:00Z'
+              person_info: Favourite color
+        required: true
+      responses:
+        '200':
+          description: Added person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+              example:
+                person_id: 6fa94734-96af-4318-8276-18f89336e127
+                name: Name to add
+                birth_date: '1998-06-11T12:30:00Z'
+                person_info: Favourite color
+        '400':
+          description: 'Invalid value for: body'
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+              example:
+                error_message: Error on server side
+  /persons/{person-id}:
+    get:
+      tags:
+      - Person endpoints
+      operationId: getPersonsPerson-id
+      parameters:
+      - name: person-id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Founded person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+              example:
+                person_id: 38e80369-9310-4d5a-9bd2-fead18203724
+                name: Example name
+                birth_date: '2023-04-19T14:30:00Z'
+                person_info: Additional info
+        '400':
+          description: 'Invalid value for: path parameter person-id'
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+              example:
+                error_message: 'Person with id: `person-id` does not exist'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+              example:
+                error_message: Error on server side
+components:
+  schemas:
+    InternalServerError:
+      required:
+      - errorMessage
+      type: object
+      properties:
+        errorMessage:
+          type: string
+    NotFound:
+      required:
+      - errorMessage
+      type: object
+      properties:
+        errorMessage:
+          type: string
+    Person:
+      required:
+      - personId
+      - name
+      - birthDate
+      - personInfo
+      type: object
+      properties:
+        personId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date-time
+        personInfo:
+          type: string
+    PersonResponse:
+      required:
+      - personId
+      - name
+      - birthDate
+      - personInfo
+      type: object
+      properties:
+        personId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date-time
+        personInfo:
+          type: string
