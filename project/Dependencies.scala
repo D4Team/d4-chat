@@ -20,6 +20,7 @@ object Dependencies {
     lazy val chimneyVersion       = "0.7.1"
     lazy val quillVersion         = "4.6.0"
     lazy val postgresqlVersion    = "42.6.0"
+    lazy val tapirVersion         = "1.2.12"
   }
 
   lazy val zio: ModuleID = "dev.zio" %% "zio" % zioVersion
@@ -69,5 +70,14 @@ object Dependencies {
     "io.getquill"   %% "quill-jdbc-zio" % quillVersion,
     "org.postgresql" % "postgresql"     % postgresqlVersion
   )
+
+  lazy val tapir: Seq[ModuleID] = Seq(
+    "tapir-core",
+    "tapir-zio",
+    "tapir-zio-http-server",
+    "tapir-json-zio",
+    "tapir-openapi-docs",
+    "tapir-swagger-ui-bundle"
+  ).map(name => "com.softwaremill.sttp.tapir" %% name % tapirVersion)
 
 }
