@@ -19,7 +19,8 @@ object Main extends ZIOAppDefault {
   private val httpApp = for {
     config   <- ZIO.service[ServerConfig]
     api      <- ZIO.service[RestController]
-    _        <- Server.install(api.route)
+    chatApi  <- ZIO.service[ChatRoomsController]
+    _        <- Server.install(api.route ++ chatApi.route)
     _        <- ZIO.logInfo(s"Started server on http://${config.host}:${config.port}")
     exitCode <- ZIO.never.exitCode
   } yield exitCode
