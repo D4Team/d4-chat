@@ -28,7 +28,7 @@ object DBMigrator {
       }
     }
 
-  private def logValidationErrorsIfAny(conf: FluentConfiguration): ZIO[Any, Throwable, ValidateResult] =
+  private def logValidationErrorsIfAny(conf: FluentConfiguration): Task[ValidateResult] =
     ZIO
       .attemptBlocking(conf.ignoreMigrationPatterns("*:pending").load.validateWithResult)
       .filterOrElseWith(_.validationSuccessful) { validateResult =>
